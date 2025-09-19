@@ -1,0 +1,89 @@
+#!/bin/bash
+
+
+# Función para esperar a que los certificados específicos estén listos
+wait_for_node_certs() {       
+    while true; do
+        echo "Waiting for certificates for node: $ES_NODE_NAME..."
+        if [ -f "$ES_CERTS_PATH/$ES_NODE_NAME/$ES_NODE_NAME.p12" ]; then
+            echo "Certificates for $ES_NODE_NAME are ready"
+            return 0
+        fi
+        sleep 5
+    done
+}
+
+generate_certs() {
+    if [ "$ES_FIRST_NODE" = "true" ]; then
+        echo "First node: Generating certificates..."
+
+        echo "instances:" > ${ES_CERTS_PATH}/instances.yml
+        IFS=',' read -r -a NAMES <<< "$ES_ALL_NODES_NAMES"
+        IFS=',' read -r -a CONTAINERS <<< "$ES_ALL_NODES_CONTAINERS_NAMES"
+
+        for i in "${!NAMES[@]}"; do
+            NAME="${NAMES[$i]}"
+            DNS="${CONTAINERS[$i]}"
+
+            cat >> ${ES_CERTS_PATH}/instances.yml <<EOF
+  - name: '${NAME}'
+    dns: [ '${DNS}' ]
+EOF
+        done
+        cat ${ES_CERTS_PATH}/instances.yml
+
+        ${ES_HOME}/src/bin/elasticsearch-certutil ca  --out ${ES_CERTS_PATH}/elastic-stack-ca.p12 --pass ""
+        ${ES_HOME}/src/bin/elasticsearch-certutil cert --silent --in ${ES_CERTS_PATH}/instances.yml --out \
+        ${ES_CERTS_PATH}/certs.zip --pass "" --ca ${ES_CERTS_PATH}/elastic-stack-ca.p12 --ca-pass ""
+        unzip ${ES_CERTS_PATH}/certs.zip -d ${ES_CERTS_PATH}/
+        rm ${ES_CERTS_PATH}/certs.zip
+    else
+        echo "Non-first node: Waiting for certificates to be generated..."
+        wait_for_node_certs
+    fi
+}
+
+generate_config() {
+    echo "Generating Elasticsearch configuration..."
+    envsubst < ${ES_HOME}/config/elasticsearch.yml.tpl > ${ES_HOME}/config/elasticsearch.yml
+
+    cp ${ES_HOME}/src/config/log4j2.properties ${ES_HOME}/config/log4j2.properties
+    cp ${ES_HOME}/src/config/jvm.options ${ES_HOME}/config/jvm.options
+}
+
+start_elasticsearch() {
+    echo "Starting Elasticsearch for node: $ES_NODE_NAME"
+    ES_PATH_CONF=${ES_HOME}/config ${ES_HOME}/src/bin/elasticsearch -d &> ${ES_HOME}/logs/elasticsearch_start.log 
+}
+
+configurate_cluster() {
+    echo "Generating superuser..."
+    cp ${ES_HOME}/src/config/users* ${ES_HOME}/config/
+    ES_PATH_CONF=${ES_HOME}/config ${ES_HOME}/src/bin/elasticsearch-users useradd elastic_default_user -p elastic_default_pass -r superuser
+
+    USUARIO_CREADO=0
+    while [[ $USUARIO_CREADO == 0 ]]; do
+      aux=$(curl -k -X POST "https://elastic_default_user:elastic_default_pass@$(hostname):${ES_HTTP_PORT}/_security/user/elastic/_password" -H 'Content-Type: application/json' -d' {   "password" : "parra1234" } ' 2> /dev/null)
+      aux2=$(echo $aux | grep error | wc -l)
+      if [[ "$aux2" == "0" ]]; then
+        USUARIO_CREADO=1
+        echo $aux
+      else
+        echo $aux
+        echo "Error creating user, retrying in 5 seconds"
+        sleep 5
+      fi
+    done
+
+    echo "Deleting superuser..."
+    ES_PATH_CONF=${ES_HOME}/config ${ES_HOME}/src/bin/elasticsearch-users userdel elastic_default_user
+}
+
+generate_certs
+generate_config
+start_elasticsearch
+#if [ "$ES_FIRST_NODE" = "true" ]; then
+#    configurate_cluster
+#fi
+
+sleep infinity
