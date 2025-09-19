@@ -1,0 +1,26 @@
+# Basic Elasticsearch configuration for single-node cluster
+cluster.name: elasticsearch-cluster 
+node.name: node-1
+
+network.host: 0.0.0.0
+http.port: 9200
+transport.port: 9300
+
+path.data: /home/es_user/elasticsearch/data
+path.logs: /home/es_user/elasticsearch/logs
+
+###### Development configuration ######
+discovery.type: single-node
+
+# Security configuration (disabled for development)
+xpack.security.enabled: false
+xpack.security.enrollment.enabled: false
+
+# Disable X-Pack ML for development
+xpack.ml.enabled: false
+
+# Disable memory locking to avoid memory issues and ulimit memory configuration
+bootstrap.memory_lock: false
+
+action.auto_create_index: true
+logger.level: INFO
