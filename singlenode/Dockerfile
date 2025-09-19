@@ -38,7 +38,7 @@ RUN curl -fsSL https://artifacts.elastic.co/downloads/elasticsearch/elasticsearc
     rm elasticsearch.tar.gz
 
 # Copy custom Elasticsearch configuration
-COPY elasticsearch.yml.single ${ES_HOME}/src/config/elasticsearch.yml
+COPY elasticsearch.yml ${ES_HOME}/src/config/elasticsearch.yml
 
 # Copy startup script
 COPY elasticsearch_start.sh ${ES_HOME}/elasticsearch_start.sh

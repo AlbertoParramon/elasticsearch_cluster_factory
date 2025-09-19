@@ -1,0 +1,78 @@
+version: '3.8'
+
+x-common-config: &common-config
+  build: .
+  environment: &common-env
+    ES_CLUSTER_NAME: elasticsearch-cluster
+    ES_DISCOVERY_SEED_HOSTS: elasticsearch-master-1,elasticsearch-master-2,elasticsearch-master-3
+    ES_CLUSTER_INITIAL_MASTER_NODES: master-1,master-2,master-3
+    ES_HTTP_PORT: 9200
+    ES_TRANSPORT_PORT: 9300
+    ES_JAVA_OPTS: -Xms512m -Xmx512m
+  volumes:
+    - /home/es_user/elasticsearch/data
+    - /home/es_user/elasticsearch/logs
+  networks:
+    - elasticsearch-network
+
+services:
+  # Master Nodes (3 nodes)
+  elasticsearch-master-1:
+    <<: *common-config
+    container_name: elasticsearch-master-1
+    environment:
+      <<: *common-env
+      ES_NODE_NAME: master-1
+      ES_NODE_ROLES: master
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  elasticsearch-master-2:
+    <<: *common-config
+    container_name: elasticsearch-master-2
+    environment:
+      <<: *common-env
+      ES_NODE_NAME: master-2
+      ES_NODE_ROLES: master
+    ports:
+      - "9201:9200"
+      - "9301:9300"
+
+  elasticsearch-master-3:
+    <<: *common-config
+    container_name: elasticsearch-master-3
+    environment:
+      <<: *common-env
+      ES_NODE_NAME: master-3
+      ES_NODE_ROLES: master
+    ports:
+      - "9202:9200"
+      - "9302:9300"
+
+  # Data Nodes (2 nodes)
+  elasticsearch-data-1:
+    <<: *common-config
+    container_name: elasticsearch-data-1
+    environment:
+      <<: *common-env
+      ES_NODE_NAME: data-1
+      ES_NODE_ROLES: data
+    ports:
+      - "9203:9200"
+      - "9303:9300"
+
+  elasticsearch-data-2:
+    <<: *common-config
+    container_name: elasticsearch-data-2
+    environment:
+      <<: *common-env
+      ES_NODE_NAME: data-2
+      ES_NODE_ROLES: data
+    ports:
+      - "9204:9200"
+      - "9304:9300"
+
+networks:
+  elasticsearch-network:
+    driver: bridge
