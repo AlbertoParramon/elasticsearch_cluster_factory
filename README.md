@@ -10,13 +10,15 @@ This project provides Docker containers for running Elasticsearch in both single
 ### My prerequisites installation
 ```bash
 TO DO
+# For docker-multinode
+sudo sysctl -w vm.max_map_count=262144
 ```
 
 ## Quick Start
 
-### docker-singlenode
+### docker-singlenode and docker-multinode
 ```bash
-# 1. Clone the repository
+# 1. Clone the repository and enter in docker-singlenode/docker-multinode directory
 # 2. Execute start.sh script
 ./start.sh
 
@@ -27,4 +29,3 @@ sleep 30
 # 4. Clean container and image
 ./clean.sh
 ```
-
