@@ -31,5 +31,10 @@ sleep 30
 ```
 
 ### docker-security\_cluster\_and\_kibana
-It works the same way as docker-singlenode and docker-multinode. Also you can open the following link in your browser: [https://localhost:5601](https://localhost:5601)
+It works the same way as docker-singlenode and docker-multinode. Also you can open the following link in your browser: 
+
+[https://localhost:5601](https://localhost:5601)
+
+<img width="720" height="272" alt="docker" src="https://github.com/user-attachments/assets/9a87f915-e5a8-47cb-82c4-b0ad19357c3a" />
+
 
