@@ -29,3 +29,7 @@ sleep 30
 # 4. Clean container and image
 ./clean.sh
 ```
+
+### docker-security\_cluster\_and\_kibana
+It works the same way as docker-singlenode and docker-multinode. Also you can open the following link in your browser: [https://localhost:5601](https://localhost:5601)
+

@@ -8,7 +8,7 @@ x-common-config: &common-config
     ES_CLUSTER_INITIAL_MASTER_NODES: master-1,master-2,master-3
     ES_HTTP_PORT: 9200
     ES_TRANSPORT_PORT: 9300
-    ES_PASS: parra1234
+    ES_PASS: example1234
     # Elasticsearch variables for the Dockerfile
     ES_JAVA_OPTS: -Xms512m -Xmx512m
     ES_ALL_NODES_NAMES: master-1,master-2,master-3,data-1,data-2

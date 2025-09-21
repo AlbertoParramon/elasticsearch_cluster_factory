@@ -3,10 +3,10 @@
 FROM redhat/ubi9:latest
 
 # Environment variables
-ENV ES_DATA_PATH=/home/es_user/elasticsearch/data 
-ENV ES_LOGS_PATH=/home/es_user/elasticsearch/logs 
-ENV ES_CERTS_PATH=/home/es_user/elasticsearch/config/certs 
 ENV ES_HOME=/home/es_user/elasticsearch 
+ENV ES_DATA_PATH=${ES_HOME}/data 
+ENV ES_LOGS_PATH=${ES_HOME}/logs 
+ENV ES_CERTS_PATH=${ES_HOME}/config/certs 
 ENV ES_VERSION=9.1.3
 ENV ES_USER=es_user
 ENV ES_GROUP=es_group
@@ -41,10 +41,9 @@ RUN curl -fsSL https://artifacts.elastic.co/downloads/elasticsearch/elasticsearc
     rm elasticsearch.tar.gz
 
 # Create data, logs and certs directories
-RUN mkdir -p ${ES_HOME}/data && \
-    mkdir -p ${ES_HOME}/logs && \
-    mkdir -p ${ES_HOME}/config && \
-    mkdir -p ${ES_HOME}/config/certs
+RUN mkdir -p ${ES_DATA_PATH} && \
+    mkdir -p ${ES_LOGS_PATH} && \
+    mkdir -p ${ES_CERTS_PATH}
 
 # Copy custom Elasticsearch configuration
 COPY elasticsearch.yml.tpl ${ES_HOME}/config/elasticsearch.yml.tpl

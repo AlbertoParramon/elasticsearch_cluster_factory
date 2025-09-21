@@ -36,7 +36,7 @@ RUN groupadd -g 1000 ${KIBANA_GROUP} && \
 # Create directories
 RUN mkdir -p ${KIBANA_HOME} && \
     mkdir -p ${KIBANA_HOME}/src && \
-    mkdir -p ${KIBANA_HOME}/logs
+    mkdir -p ${KIBANA_LOGS_PATH}
 
 
 # Set working directory
