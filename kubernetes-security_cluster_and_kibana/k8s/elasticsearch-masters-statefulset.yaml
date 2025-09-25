@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: es-master
+  namespace: es-secure
+spec:
+  serviceName: elasticsearch-master
+  replicas: 3
+  selector:
+    matchLabels:
+      app: elasticsearch
+      role: master
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+        role: master
+    spec:
+      containers:
+      - name: elasticsearch
+        image: kub_es_node_img
+        imagePullPolicy: Never
+        envFrom:
+        - configMapRef:
+            name: es-common-config
+        - secretRef:
+            name: es-credentials
+        env:
+        - name: ES_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: ES_NODE_ROLES
+          value: "master,remote_cluster_client"
+        - name: ES_CERTS_PATH
+          value: "/home/es_user/elasticsearch/config/certs"
+        - name: ES_FIRST_NODE
+          value: "es-master-0"
+        volumeMounts:
+        - name: data
+          mountPath: /home/es_user/elasticsearch/data
+        - name: logs
+          mountPath: /home/es_user/elasticsearch/logs
+        - name: certs
+          mountPath: /home/es_user/elasticsearch/config/certs
+        ports:
+        - name: http
+          containerPort: 9200
+        - name: transport
+          containerPort: 9300
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - 'curl -k -s -u elastic:${ES_PASS} https://localhost:9200/_cluster/health?local=true | grep -q "green\|yellow"'
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+      volumes:
+      - name: certs
+        persistentVolumeClaim:
+          claimName: es-certs-pvc
+      - name: data
+        emptyDir:
+          sizeLimit: 200Mi
+      - name: logs
+        emptyDir:
+          sizeLimit: 100Mi

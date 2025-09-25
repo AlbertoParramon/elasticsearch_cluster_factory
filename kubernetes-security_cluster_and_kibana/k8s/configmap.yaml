@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: es-common-config
+  namespace: es-secure
+data:
+  ES_CLUSTER_NAME: elasticsearch-cluster
+  ES_HTTP_PORT: "9200"
+  ES_TRANSPORT_PORT: "9300"
+  ES_DISCOVERY_SEED_HOSTS: "elasticsearch-master.es-secure.svc.cluster.local"
+  ES_CLUSTER_INITIAL_MASTER_NODES: "es-master-0,es-master-1,es-master-2"
+  ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+  ES_ALL_NODES_NAMES: "es-master-0,es-master-1,es-master-2,es-data-0,es-data-1"
+  ES_HTTP_SERVICE: "elasticsearch-http"
+  ES_NAMESPACE: "es-secure"
+  ES_MASTER_SERVICE: "elasticsearch-master"
+  ES_DATA_SERVICE: "elasticsearch-data"

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: es-secure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      containers:
+      - name: kibana
+        image: kub_es_kibana_img
+        imagePullPolicy: Never
+        envFrom:
+        - configMapRef:
+            name: es-common-config
+        - secretRef:
+            name: es-credentials
+        env:
+        - name: ES_ELASTICSEARCH_HOSTS
+          value: "https://elasticsearch-http.es-secure.svc.cluster.local:9200"
+        ports:
+        - name: http
+          containerPort: 5601
+        volumeMounts:
+        - name: certs
+          mountPath: /home/es_user/elasticsearch/config/certs
+      volumes:
+      - name: certs
+        persistentVolumeClaim:
+          claimName: es-certs-pvc
