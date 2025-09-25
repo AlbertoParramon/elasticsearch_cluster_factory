@@ -1,5 +1,3 @@
-version: '3.8'
-
 x-common-config: &common-config
   environment: &common-env
     # Elasticsearch.yml  variables

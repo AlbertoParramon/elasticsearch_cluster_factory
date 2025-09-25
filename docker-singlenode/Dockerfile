@@ -1,11 +1,6 @@
 # Dockerfile for Elasticsearch Single Node
 FROM redhat/ubi9:latest
 
-# Image metadata
-LABEL maintainer="alberto.parramon"
-LABEL description="Elasticsearch Cluster Factory - Red Hat UBI 9"
-LABEL version="1.0"
-
 # Environment variables for Elasticsearch
 ENV ES_VERSION=9.1.3
 ENV ES_USER=es_user
