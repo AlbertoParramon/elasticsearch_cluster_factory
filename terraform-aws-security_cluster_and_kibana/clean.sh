@@ -1,13 +1,9 @@
 #!/bin/bash
 
-set -euo pipefail
-
-#NS=es-secure
-#K8S_DIR="./k8s"
 AWS_ZONE=eu-west-1
 echo "Deleting namespace es-secure"
 kubectl delete namespace es-secure --wait=true
-# Añadir comprobacion de que el namespace se ha eliminado
+
 echo "Waiting for namespace to be deleted to avoid orphaned resources"
 sleep 120
 
@@ -19,7 +15,7 @@ aws ecr delete-repository   --repository-name aws-es-kibana-img-repository   --r
 aws ecr delete-repository   --repository-name aws-es-node-img-repository   --region eu-west-1   --force
 
 echo "Delete docker images"
-docker rmi $(docker images | grep aws-es   | awk -F' ' '{print$3}')
+docker rmi -f $(docker images | grep aws-es  | awk -F' ' '{print$3}')
 
 
 echo "Checking orphaned resources. If any resource is found, you need to delete it manually."
@@ -42,7 +38,7 @@ echo "=== EKS CLUSTERS ==="
 aws eks list-clusters --region $AWS_ZONE --query 'clusters[]' --output text
 echo "=== EFS FILE SYSTEMS ==="
 aws efs describe-file-systems --region $AWS_ZONE --query 'FileSystems[].[FileSystemId,Name,LifeCycleState]' --output text
-echo "=== IAM ROLES (relacionados con Elasticsearch) ==="
+echo "=== IAM ROLES ==="
 aws iam list-roles --query 'Roles[?contains(RoleName, `elasticsearch`) || contains(RoleName, `efs`) || contains(RoleName, `eks`)].RoleName' --output text
 echo "=== NETWORK INTERFACES ==="
 aws ec2 describe-network-interfaces --region $AWS_ZONE --query 'NetworkInterfaces[].[NetworkInterfaceId,Status,VpcId,SubnetId]' --output text
