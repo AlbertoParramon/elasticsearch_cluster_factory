@@ -5,7 +5,7 @@ echo "Deleting namespace es-secure"
 kubectl delete namespace es-secure --wait=true
 
 echo "Waiting for namespace to be deleted to avoid orphaned resources"
-sleep 120
+sleep 180
 
 echo "Destroying terraform infrastructure"
 terraform destroy -auto-approve

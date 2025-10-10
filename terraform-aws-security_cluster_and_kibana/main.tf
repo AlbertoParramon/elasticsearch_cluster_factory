@@ -272,26 +272,6 @@ resource "aws_eks_node_group" "elasticsearch" {
 
   instance_types = [var.node_instance_type]
 
-##  # User Data para configurar vm.max_map_count para Elasticsearch
-##  remote_access {
-##    ec2_ssh_key = null  # Sin clave SSH por ahora
-##  ##}
-
-##  # User Data script que se ejecuta al arrancar cada nodo
-##  user_data = base64encode(<<-EOF
-##    #!/bin/bash
-##    # Configurar vm.max_map_count para Elasticsearch
-##    echo "vm.max_map_count=262144" >> /etc/sysctl.conf
-##    sysctl -p
-##    
-##    # Aplicar la configuración inmediatamente
-##    echo 262144 > /proc/sys/vm/max_map_count
-##    
-##    # Verificar que se aplicó correctamente
-##    echo "vm.max_map_count configurado: $(cat /proc/sys/vm/max_map_count)"
-##  EOF
-##  )
-
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling.
   depends_on = [
     aws_iam_role_policy_attachment.eks_worker_node_policy,
@@ -442,34 +422,6 @@ resource "aws_iam_role" "efs_csi_driver" {
     Instance = "${var.cluster_name}"
   }
 }
-
-
-### ECR Repositories
-##resource "aws_ecr_repository" "elasticsearch" {
-##  name = "aws-es-node-img-repository"
-##  
-##  image_scanning_configuration {
-##    scan_on_push = true
-##  }
-##  
-##  tags = {
-##    Name = "${var.cluster_name}-elasticsearch"
-##    Instance = var.cluster_name
-##  }
-##}
-##
-##resource "aws_ecr_repository" "kibana" {
-##  name = "aws-es-kibana-img-repository"
-##  
-##  image_scanning_configuration {
-##    scan_on_push = true
-##  }
-##  
-##  tags = {
-##    Name = "${var.cluster_name}-kibana"
-##    Instance = var.cluster_name
-##  }
-##}
 
 # EFS CSI Driver IAM Policy - Full Access
 resource "aws_iam_role_policy_attachment" "efs_csi_driver_full" {
