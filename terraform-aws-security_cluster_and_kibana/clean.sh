@@ -19,7 +19,7 @@ docker rmi -f $(docker images | grep aws-es  | awk -F' ' '{print$3}')
 
 
 echo "Checking orphaned resources. If any resource is found, you need to delete it manually."
-DEFAULT_VPC=$(aws ec2 describe-vpcs --region $REGION --filters "Name=isDefault,Values=true" --query 'Vpcs[0].VpcId' --output text)
+DEFAULT_VPC=$(aws ec2 describe-vpcs --region $AWS_ZONE --filters "Name=isDefault,Values=true" --query 'Vpcs[0].VpcId' --output text)
 echo "=== EBS VOLUMES DISPONIBLES ==="
 aws ec2 describe-volumes --region $AWS_ZONE --query 'Volumes[?State==`available`].[VolumeId,Size,VolumeType,CreateTime]' --output text
 echo "=== VPCS ==="
@@ -28,6 +28,8 @@ echo "=== SECURITY GROUPS ==="
 aws ec2 describe-security-groups --region $AWS_ZONE --query 'SecurityGroups[?GroupName!=`default`].[GroupId,GroupName,VpcId,Description]' --output text
 echo "=== INTERNET GATEWAYS ==="
 aws ec2 describe-internet-gateways --region $AWS_ZONE --query "InternetGateways[?Attachments[0].VpcId!='$DEFAULT_VPC'].[InternetGatewayId,Attachments[0].State,Attachments[0].VpcId]" --output text
+echo "=== NAT GATEWAYS ==="
+aws ec2 describe-nat-gateways --region $AWS_ZONE --query "NatGateways[?VpcId!='$DEFAULT_VPC'].[NatGatewayId,State,VpcId,SubnetId,NatGatewayAddresses[0].PublicIp]" --output text
 echo "=== ROUTE TABLES ==="
 aws ec2 describe-route-tables --region $AWS_ZONE --query "RouteTables[?VpcId!='$DEFAULT_VPC'].[RouteTableId,VpcId,Associations[0].Main]" --output text
 echo "=== SUBNETS ==="
